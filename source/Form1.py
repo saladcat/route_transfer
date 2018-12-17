@@ -61,7 +61,7 @@ class Ui_Form(object):
         self.label = QtWidgets.QLabel(Form)
         self.label.setGeometry(QtCore.QRect(0, 0, 771, 521))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("../../../Desktop/banner_1.png"))
+        self.label.setPixmap(QtGui.QPixmap("back.png"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
         self.label.raise_()
