@@ -15,6 +15,7 @@ class PC(QWidget, Ui_Form):
         self.pc_id = pc_id
         self.host = Host(pc_id)
         self.route = Route(pc_id)
+        # 连接signal
         self.host.host_trans.connect(self.route.forward_msg)
         self.route.to_host_trans.connect(self.host.rec_msg)
         self.PB_send_data.clicked.connect(self.on_click_send)
@@ -36,9 +37,10 @@ class PC(QWidget, Ui_Form):
         self.LV_send_rec_info.addItem(show_string)
 
     def show_route_info(self, msg, next_hop):
-        show_string = f"forward message:{msg.content} to next hop:{next_hop}"
+        show_string = f"forward message:{msg.content} to next hop:{next_hop if next_hop!= -1 else msg.dest}"
         self.LV_route_info.addItem(show_string)
 
+    # 发送信息请求
     def on_click_send(self):
         if self.choose1.isChecked():
             rec_name = self.choose1.text()
@@ -53,6 +55,7 @@ class PC(QWidget, Ui_Form):
         self.PTE_send_content.clear()
         self.host.send_msg(msg)
 
+    # 将3台路由器连在一起
     def link(self, pcs):
         for pc in pcs:
             self.route.route_table[pc.route.route_id] = pc.route

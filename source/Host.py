@@ -11,9 +11,11 @@ class Host(QObject):
         super().__init__()
         self.host_id = host_id
 
+    # 发送消息
     def send_msg(self, msg):
         self.host_trans.emit(msg)
 
+    # 接受消息
     @pyqtSlot(Message)
     def rec_msg(self, msg):
         self.pc_trans.emit(msg)
