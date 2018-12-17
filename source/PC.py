@@ -32,10 +32,12 @@ class PC(QWidget, Ui_Form):
             self.TV_route_table.setItem(0, 0, keyItem)
             self.TV_route_table.setItem(0, 1, valueItem)
 
+    # 当接受到消息之后，消息在GUI界面中显示出来
     def show_host_info(self, msg):
         show_string = f"recive message:{msg.content} from id:{msg.src}"
         self.LV_send_rec_info.addItem(show_string)
 
+    # 当接受到转发消息之后，消息在GUI界面中显示出来
     def show_route_info(self, msg, next_hop):
         show_string = f"forward message:{msg.content} to next hop:{next_hop if next_hop !=-1 else msg.dest}"
         self.LV_route_info.addItem(show_string)
