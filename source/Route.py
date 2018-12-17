@@ -6,6 +6,7 @@ from source.Message import Message
 
 
 class Route(QObject):
+    # 所用到的signal
     route_trans = pyqtSignal(Message)
     to_host_trans = pyqtSignal(Message)
     pc_trans = pyqtSignal(Message, int)
@@ -19,6 +20,7 @@ class Route(QObject):
         for dest, next_hop in zip(df["dest"], df["next_hop"]):
             self.forward_table[dest] = next_hop
 
+    # 转发信息
     def forward_msg(self, msg):
         src = msg.src
         dest = msg.dest
@@ -36,6 +38,7 @@ class Route(QObject):
                     self.route_trans.disconnect()
                 self.pc_trans.emit(msg, forward_route_id)
 
+    # 初始化时，注册其他的路由器
     def regis_route(self, routes):
         for route in routes:
             self.route_table[route.route_id] = route
