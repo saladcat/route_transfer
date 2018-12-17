@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
@@ -61,7 +62,7 @@ class Ui_Form(object):
         self.label = QtWidgets.QLabel(Form)
         self.label.setGeometry(QtCore.QRect(0, 0, 771, 521))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("back.png"))
+        self.label.setPixmap(QtGui.QPixmap("../resource/back.png"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
         self.label.raise_()
@@ -89,4 +90,3 @@ class Ui_Form(object):
         item.setText(_translate("Form", "next_hop"))
         self.groupBox_3.setTitle(_translate("Form", "路由器信息"))
         self.PC_name.setText(_translate("Form", "ID："))
-
