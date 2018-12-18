@@ -16,8 +16,6 @@ class PC(QWidget, Ui_Form):
         self.host = Host(pc_id)
         self.route = Route(pc_id)
         # 连接signal
-        self.host.host_trans.connect(self.route.forward_msg)
-        self.route.to_host_trans.connect(self.host.rec_msg)
         self.PB_send_data.clicked.connect(self.on_click_send)
         self.host.pc_trans.connect(self.show_host_info)
         self.route.pc_trans.connect(self.show_route_info)
@@ -31,6 +29,12 @@ class PC(QWidget, Ui_Form):
             self.TV_route_table.insertRow(0)
             self.TV_route_table.setItem(0, 0, keyItem)
             self.TV_route_table.setItem(0, 1, valueItem)
+        temp_list = [self.choose1, self.choose2]
+        choose = temp_list[0]
+        for i in range(1, 4):
+            if i != self.pc_id:
+                choose.setText(str(i))
+                choose = temp_list[1]
 
     # 当接受到消息之后，消息在GUI界面中显示出来
     def show_host_info(self, msg):
@@ -57,25 +61,6 @@ class PC(QWidget, Ui_Form):
         self.PTE_send_content.clear()
         self.host.send_msg(msg)
 
-    # 将3台路由器连在一起
-    def link(self, pcs):
-        for pc in pcs:
-            self.route.route_table[pc.route.route_id] = pc.route
-        if self.pc_id == 1:
-            pass
-        self.choose1.setText(str(pcs[0].pc_id))
-        self.choose2.setText(str(pcs[1].pc_id))
-
-
-def link(pcs):
-    aaa = []
-    for key in pcs:
-        aaa.append(pcs[key])
-    for pc in aaa:
-        copy = aaa[:]
-        copy.remove(pc)
-        pc.link(copy)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -85,9 +70,6 @@ if __name__ == '__main__':
         'PC3': PC(3),
     }
 
-    link(windows_dict)
-
-    windows_dict['PC1'].show()
     for index in windows_dict:
         windows_dict[index].show()
     sys.exit(app.exec_())

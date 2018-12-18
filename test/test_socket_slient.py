@@ -5,5 +5,5 @@ if __name__ == '__main__':
     host = socket.gethostbyname("")  # 获取本地主机名
     port = 10001  # 设置端口号
     s.connect((host, port))
-    print(s.recv(1024))
+    print(s.recv(1024).decode())
     s.close()
