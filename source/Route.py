@@ -6,6 +6,8 @@ from source.Message import Message
 import socket
 import json
 
+from source.JsonHelper import *
+
 
 class ListenMessage(QThread):
     trigger = pyqtSignal(Message)
@@ -16,6 +18,7 @@ class ListenMessage(QThread):
 
     def run(self):
         s = socket.socket()
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         localhost = socket.gethostbyname("")
         port = 10000 + self.route_id
         s.bind((localhost, port))
@@ -23,11 +26,12 @@ class ListenMessage(QThread):
         s.listen(5)  # 等待客户端连接
         while True:
             c, addr = s.accept()  # 建立客户端连接。
-            print('连接地址：', addr)
-            rec = s.recv(1024).decode()
-            msg = json.loads(rec, object_hook=Message.unserialize_object).decode()
+            print(f'router_{self.route_id}_rec:连接地址：', addr)
+            rec = c.recv(1024).decode()
+            msg = json.loads(rec, object_hook=unserialize_object)
             c.close()  # 关闭连接
-            self.trigger.emit(msg)
+            for_msg = Message(msg.src, msg.dest, msg.content)
+            self.trigger.emit(for_msg)
 
 
 class Route(QObject):
@@ -41,11 +45,13 @@ class Route(QObject):
         df = pd.read_excel(f"../resource/R{self.route_id}.xlsx", sheet_name="Sheet1", header=0)
         for dest, next_hop in zip(df["dest"], df["next_hop"]):
             self.forward_table[dest] = next_hop
-        listen_msg = ListenMessage(route_id)
+        self.listen_msg = ListenMessage(route_id)
+        self.listen_msg.trigger.connect(self.forward_msg)
+        self.listen_msg.start()
 
     # 转发信息
     def forward_msg(self, msg):
-        json_str = json.dumps(msg, default=Message.serialize_instance)
+        json_str = json.dumps(msg, default=serialize_instance)
         dest = msg.dest
 
         s = socket.socket()  # 创建 socket 对象
@@ -58,8 +64,8 @@ class Route(QObject):
                 if forward_route_id == -1:
                     port = 20000 + int(self.route_id)  # 设置端口号
                 else:
-                    port = 10000 + int(self.route_id)
-                self.pc_trans.emit(msg, forward_route_id)
+                    port = 10000 + int(forward_route_id)
+                self.pc_trans.emit(msg, int(forward_route_id))
         s.connect((host, port))
         s.send(json_str.encode())
         s.close()

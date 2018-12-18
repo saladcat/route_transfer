@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import socket
 import json
+from source.JsonHelper import *
 
 
 class ListenMessage(QThread):
@@ -14,6 +15,7 @@ class ListenMessage(QThread):
 
     def run(self):
         s = socket.socket()
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         localhost = socket.gethostbyname("")
         port = 20000 + self.host_id
         s.bind((localhost, port))
@@ -21,11 +23,12 @@ class ListenMessage(QThread):
         s.listen(5)  # 等待客户端连接
         while True:
             c, addr = s.accept()  # 建立客户端连接。
-            print('连接地址：', addr)
-            rec = s.recv(1024).decode() # 接受消息
-            msg = json.loads(rec, object_hook=Message.unserialize_object).decode()
+            print(f'host_{self.host_id}_rec:连接地址：', addr)
+            rec = c.recv(1024).decode()  # 接受消息
+            msg = json.loads(rec, object_hook=unserialize_object)
             c.close()  # 关闭连接
-            self.trigger.emit(msg)  # 循环完毕后发出信号
+            for_msg = Message(msg.src, msg.dest, msg.content)
+            self.trigger.emit(for_msg)  # 循环完毕后发出信号
 
 
 class Host(QObject):
@@ -36,6 +39,7 @@ class Host(QObject):
         super(Host, self).__init__()
         self.host_id = host_id
         self.listen_msg = ListenMessage(host_id)
+        self.listen_msg.start()
         self.listen_msg.trigger.connect(self.rec_msg)
 
     # 发送消息
@@ -44,7 +48,7 @@ class Host(QObject):
         host = socket.gethostbyname("")  # 获取本地主机名
         port = 10000 + int(msg.src)  # 设置端口号
         s.connect((host, port))
-        json_str = json.dumps(msg, default=Message.serialize_instance)
+        json_str = json.dumps(msg, default=serialize_instance)
         s.send(json_str.encode())
         s.close()
 

@@ -6,6 +6,8 @@ from PyQt5.QtCore import *
 from source.Form1 import Ui_Form
 import sys
 
+from source.JsonHelper import *
+
 
 class PC(QWidget, Ui_Form):
 
@@ -43,7 +45,8 @@ class PC(QWidget, Ui_Form):
 
     # 当接受到转发消息之后，消息在GUI界面中显示出来
     def show_route_info(self, msg, next_hop):
-        show_string = f"forward message:{msg.content} to next hop:{next_hop if next_hop !=-1 else msg.dest}"
+        show_string = f"forward message:{msg.content} to " \
+            f"next hop:{'router' + str(next_hop) if next_hop != -1 else 'PC' + str(msg.dest)}"
         self.LV_route_info.addItem(show_string)
 
     # 发送信息请求
